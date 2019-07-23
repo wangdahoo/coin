@@ -1,6 +1,7 @@
 import WebSocket from 'ws'
 import {Server} from 'ws'
 import {Block, getLatestBlock, getBlockchain, addBlock, replaceChain, mineBlock} from './blockchain'
+import { IncomingMessage } from 'http';
 
 const sockets: WebSocket[] = []
 
@@ -24,7 +25,7 @@ class Message {
 }
 
 const broadcast = (message: Message) => sockets.forEach(ws => ws.send(JSON.stringify(message)))
-const broadcastNewBlock = (newBlock: Block) => broadcast(new Message(MessageType.RESPONSE_LATEST, newBlock))
+const broadcastNewBlock = (newBlock: Block) => broadcast(new Message(MessageType.RESPONSE_LATEST, [newBlock]))
 const broadcastQueryAll = () => broadcast(new Message(MessageType.QUERY_ALL, null))
 
 const onMessage = (ws: WebSocket) => {
@@ -158,6 +159,10 @@ class Peer {
     const newBlock: Block = mineBlock(data)
     broadcastNewBlock(newBlock)
     return newBlock
+  }
+
+  getPeers () {
+    return sockets.map(ws => ws.url)
   }
 }
 

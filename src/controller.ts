@@ -32,7 +32,22 @@ const createController = (peer: Peer) => {
 
   app.post('/mine', (req, res: any) => {
     const { data } = req.body
+    if (data == null || data == '') return res.fail('data cannot be empty')
     res.succeed(peer.mine(data))
+  })
+
+  app.post('/peer', (req, res: any) => {
+    const { endpoint } = req.body
+    if (!/^ws:\/\/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d{4}$/.test(endpoint)) return res.fail('illegal endpoint')
+
+    peer.connect(endpoint)
+    res.succeed()
+  })
+
+  app.get('/peers', (req, res: any) => {
+    res.succeed({
+      peers: peer.getPeers()
+    })
   })
 
   app.listen(port, () => console.log(`Listen on: ${port}`))

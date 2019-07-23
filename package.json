@@ -6,7 +6,7 @@
   "scripts": {
     "prestart": "gulp",
     "start": "node dist/index.js",
-    "dev": "ts-node src/index.ts"
+    "dev": "nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.spec.ts' -x ts-node src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -26,6 +26,7 @@
     "gulp": "^4.0.2",
     "gulp-cli": "^2.2.0",
     "gulp-typescript": "^5.0.1",
+    "nodemon": "^1.19.1",
     "ts-node": "^8.3.0",
     "typescript": "^3.5.3"
   },

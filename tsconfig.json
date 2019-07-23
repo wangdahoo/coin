@@ -1,9 +1,24 @@
 {
   "files": [
-    "src/main.ts"
+    "src/blockchain.ts",
+    "src/controller.ts",
+    "src/index.ts",
+    "src/peer.ts"
   ],
   "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "target": "es6",
     "noImplicitAny": true,
-    "target": "es5"
-  }
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "*": [
+        "node_modules/*",
+        "src/types/*"
+      ]
+    }
+  },
 }

@@ -31,8 +31,9 @@ const getLatestBlock = (): Block => blockchain[blockchain.length - 1]
 const generateNextBlock = (data: string) => {
   const prevBlock = getLatestBlock()
   const index: number = prevBlock.index + 1
-  const timestamp: number = Date.now() / 1000
+  const timestamp: number = Math.floor(Date.now() / 1000)
   const hash: string = calculateHash(index, prevBlock.hash, timestamp, data)
+  console.log(index, hash, prevBlock.hash, timestamp, data)
   const newBlock: Block = new Block(index, hash, prevBlock.hash, timestamp, data)
   addBlock(newBlock)
   return newBlock
@@ -53,7 +54,7 @@ const isValidHash = (block: Block): boolean => {
 
 const isValidBlock = (block: Block, prevBlock: Block): boolean => {
   return prevBlock.index + 1 === block.index &&
-    prevBlock.hash !== block.prevHash &&
+    prevBlock.hash === block.prevHash &&
     isValidHash(block)
 }
 
@@ -87,7 +88,7 @@ const replaceChain = (chain: Block[]) => {
   }
 }
 
-const mineBlock = (data: string) => addBlock(generateNextBlock(data))
+const mineBlock = (data: string) => generateNextBlock(data)
 
 export {
   Block,

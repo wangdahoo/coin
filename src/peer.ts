@@ -141,7 +141,7 @@ class Peer {
     const ws = new WebSocket(endpoint)
     ws.on('open', () => {
       onConnection(ws)
-
+      // TODO:
     })
     ws.on('error', () => console.error(`connect to peer ${endpoint} failed.`))
   }
@@ -155,7 +155,9 @@ class Peer {
   }
 
   mine (data: string) {
-    return mineBlock(data)
+    const newBlock: Block = mineBlock(data)
+    broadcastNewBlock(newBlock)
+    return newBlock
   }
 }
 

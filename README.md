@@ -1,7 +1,3 @@
 # coin
 
-## Setup
-
-```bash
-npm i
-```
+> cryptocurrency study.

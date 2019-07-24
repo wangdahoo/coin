@@ -123,11 +123,12 @@ const addBlock = (newBlock: Block) => {
 }
 
 const isValidChain = (chain: Block[]): boolean => {
-  if (JSON.stringify(chain[0]) === JSON.stringify(genesisBlock)) {
+  if (JSON.stringify(chain[0]) !== JSON.stringify(genesisBlock)) {
     return false
   }
 
   for (let i = 1; i < chain.length; i++) {
+    console.log('isValidBlock: ' + isValidBlock(chain[i], chain[i - 1]))
     if (!isValidBlock(chain[i], chain[i - 1])) {
       return false
     }
@@ -138,7 +139,7 @@ const isValidChain = (chain: Block[]): boolean => {
 
 const replaceChain = (chain: Block[]) => {
   if (isValidChain(chain) && chain.length > getBlockchain().length) {
-    setBlockchain(blockchain)
+    setBlockchain(chain)
   }
 }
 

@@ -160,9 +160,7 @@ class Peer {
     ws.on('open', () => {
       onConnection(ws)
 
-
-
-      // TODO:
+      ws.send(JSON.stringify(new Message(MessageType.QUERY_LATEST, null)))
     })
     ws.on('error', () => console.error(`connect to peer ${endpoint} failed.`))
   }

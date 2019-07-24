@@ -21,6 +21,9 @@ const hexToBinary = (s: string): string => {
   return ret
 }
 
+const getCurrentTimestamp = () => Math.floor(Date.now() / 1000)
+
 export {
-  hexToBinary
+  hexToBinary,
+  getCurrentTimestamp
 }

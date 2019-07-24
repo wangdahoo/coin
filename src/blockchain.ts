@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import { hexToBinary } from './util'
+import {hexToBinary, getCurrentTimestamp} from './util'
 
 // seconds
 const BLOCK_GENERATION_INTERVAL: number = 10
@@ -87,7 +87,7 @@ const getDifficulty = (): number => {
 const generateNextBlock = (data: string) => {
   const prevBlock = getLatestBlock()
   const index: number = prevBlock.index + 1
-  const timestamp: number = Math.floor(Date.now() / 1000)
+  const timestamp: number = getCurrentTimestamp()
   const newBlock: Block = findBlock(index, prevBlock.hash, timestamp, data, getDifficulty())
   addBlock(newBlock)
   return newBlock
@@ -106,10 +106,16 @@ const isValidHash = (block: Block): boolean => {
   return calculateHash(index, prevHash, timestamp, data, difficulty, nonce) === block.hash
 }
 
+const isValidTimestamp = (newBlock: Block, prevBlock: Block): boolean => {
+  return (prevBlock.timestamp - 60 < newBlock.timestamp) &&
+    newBlock.timestamp - 60 < getCurrentTimestamp()
+}
+
 const isValidBlock = (block: Block, prevBlock: Block): boolean => {
   return prevBlock.index + 1 === block.index &&
     prevBlock.hash === block.prevHash &&
-    isValidHash(block)
+    isValidHash(block) &&
+    isValidTimestamp(block, prevBlock)
 }
 
 const addBlock = (newBlock: Block) => {

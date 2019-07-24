@@ -143,8 +143,14 @@ const isValidChain = (chain: Block[]): boolean => {
   return true
 }
 
+const getCumulativeDifficulty = (chain: Block[]) => {
+  return chain.reduce((difficulty, block) => {
+    return difficulty + Math.pow(2, block.difficulty)
+  }, 0)
+}
+
 const replaceChain = (chain: Block[]) => {
-  if (isValidChain(chain) && chain.length > getBlockchain().length) {
+  if (isValidChain(chain) && getCumulativeDifficulty(chain) > getCumulativeDifficulty(getBlockchain())) {
     setBlockchain(chain)
   }
 }

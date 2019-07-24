@@ -1,7 +1,6 @@
 import WebSocket from 'ws'
 import {Server} from 'ws'
 import {Block, getLatestBlock, getBlockchain, addBlock, replaceChain, mineBlock} from './blockchain'
-import { IncomingMessage } from 'http';
 
 const sockets: WebSocket[] = []
 

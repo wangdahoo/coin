@@ -1,4 +1,11 @@
 import crypto from 'crypto'
+import { hexToBinary } from './util'
+
+// seconds
+const BLOCK_GENERATION_INTERVAL: number = 10
+
+// blocks
+const DIFFICULTY_ADJUSTMENT_INTERVAL: number = 10
 
 class Block {
   public index: number
@@ -6,18 +13,23 @@ class Block {
   public prevHash: string
   public timestamp: number
   public data: string
+  public difficulty: number
+  public nonce: number
 
-  constructor(index: number, hash: string, prevHash: string, timestamp: number, data: string) {
+  constructor(index: number, hash: string, prevHash: string,
+    timestamp: number, data: string, difficulty: number, nonce: number) {
     this.index = index
     this.hash = hash
     this.prevHash = prevHash
     this.timestamp = timestamp
     this.data = data
+    this.difficulty = difficulty
+    this.nonce = nonce
   }
 }
 
 const genesisBlock: Block = new Block(
-  0, '816534932c2b7154836da6afc367695e6337db8a921823784c14378abed4f7d7', '', 1563851243, 'the genesis block'
+  0, '94d9a6070318a3e7d0fa3ab7723a27af189d835876b8d5138d777cefbbbf3d4d', '', 1563851243, 'the genesis block', 0, 0
 )
 
 let blockchain: Block[] = [genesisBlock]
@@ -28,19 +40,63 @@ const setBlockchain = (chain: Block[]) => {
 
 const getLatestBlock = (): Block => blockchain[blockchain.length - 1]
 
+const matchDifficulty = (hash: string, difficulty: number): boolean => {
+  if (difficulty > 0) {
+    return hexToBinary(hash).startsWith('0'.repeat(difficulty))
+  }
+
+  return true
+}
+
+const findBlock = (index: number, prevHash: string, timestamp: number, data: string, difficulty: number): Block => {
+  let nonce = 0
+
+  while (true) {
+    const hash: string = calculateHash(index, prevHash, timestamp, data, difficulty, nonce)
+
+    if (matchDifficulty(hash, difficulty)) {
+      return new Block(index, hash, prevHash, timestamp, data, difficulty, nonce)
+    }
+
+    nonce++
+  }
+}
+
+const getDifficulty = (): number => {
+  const latestBlock: Block = getLatestBlock()
+  const difficulty = latestBlock.difficulty
+
+  if (latestBlock.index % DIFFICULTY_ADJUSTMENT_INTERVAL === 0 && latestBlock.index !== 0) {
+    const blockchain = getBlockchain()
+    const startTime = blockchain[blockchain.length - DIFFICULTY_ADJUSTMENT_INTERVAL].timestamp
+    const endTime = latestBlock.timestamp
+    const timeSpec = BLOCK_GENERATION_INTERVAL * DIFFICULTY_ADJUSTMENT_INTERVAL
+
+    if (endTime - startTime < timeSpec / 2) {
+      console.log('+1')
+      return difficulty + 1
+    } else if (endTime - startTime > timeSpec * 2) {
+      console.log('-1')
+      return difficulty - 1
+    } else {
+      return difficulty
+    }
+  }
+
+  return difficulty
+}
+
 const generateNextBlock = (data: string) => {
   const prevBlock = getLatestBlock()
   const index: number = prevBlock.index + 1
   const timestamp: number = Math.floor(Date.now() / 1000)
-  const hash: string = calculateHash(index, prevBlock.hash, timestamp, data)
-  console.log(index, hash, prevBlock.hash, timestamp, data)
-  const newBlock: Block = new Block(index, hash, prevBlock.hash, timestamp, data)
+  const newBlock: Block = findBlock(index, prevBlock.hash, timestamp, data, getDifficulty())
   addBlock(newBlock)
   return newBlock
 }
 
-const calculateHash = (index: number, prevHash: string, timestamp: number, data: string) => {
-  const content = `${index}${prevHash}${timestamp}${data}`
+const calculateHash = (index: number, prevHash: string, timestamp: number, data: string, difficulty: number, nonce: number) => {
+  const content = `${index}${prevHash}${timestamp}${data}${difficulty}${nonce}`
   const hash = crypto.createHmac('sha256', '')
     .update(content)
     .digest('hex')
@@ -48,8 +104,8 @@ const calculateHash = (index: number, prevHash: string, timestamp: number, data:
 }
 
 const isValidHash = (block: Block): boolean => {
-  const { index, prevHash, timestamp, data } = block
-  return calculateHash(index, prevHash, timestamp, data) === block.hash
+  const { index, prevHash, timestamp, data, difficulty, nonce} = block
+  return calculateHash(index, prevHash, timestamp, data, difficulty, nonce) === block.hash
 }
 
 const isValidBlock = (block: Block, prevBlock: Block): boolean => {

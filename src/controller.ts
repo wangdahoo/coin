@@ -50,7 +50,7 @@ const createController = (peer: Peer) => {
     })
   })
 
-  app.listen(port, () => console.log(`Listen on: ${port}`))
+  app.listen(port, () => console.log(`Controller listen on: ${port}`))
 }
 
 export {

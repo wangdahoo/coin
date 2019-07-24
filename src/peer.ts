@@ -5,12 +5,16 @@ import {Block, getLatestBlock, getBlockchain, addBlock, replaceChain, mineBlock}
 const sockets: WebSocket[] = []
 
 const port: number = Number(process.env.PEER_PORT) || 8000
+const getEndpoint = () => `ws://${process.env.PEER_ADDRESS || '127.0.0.1'}:${port}`
 
 enum MessageType {
   QUERY_LATEST = 1,
   QUERY_ALL = 2,
   RESPONSE_LATEST = 3,
   RESPONSE_ALL = 4,
+
+  QUERY_IDENTITY = 5,
+  RESPONSE_IDENTITY = 6
 }
 
 class Message {
@@ -60,6 +64,14 @@ const onMessage = (ws: WebSocket) => {
         break
       case MessageType.RESPONSE_ALL:
         handleReceivedBlocks(message.data)
+        break
+      case MessageType.QUERY_IDENTITY:
+        feedback = new Message(MessageType.RESPONSE_IDENTITY, getEndpoint())
+        break
+      case MessageType.RESPONSE_IDENTITY:
+        if (ws.url === undefined) {
+          ws.url = message.data
+        }
         break
       default:
         console.log('Illegal Message Type')
@@ -114,6 +126,10 @@ const onConnection = (ws: WebSocket) => {
   sockets.push(ws)
   onMessage(ws)
   onError(ws)
+
+  if (ws.url === undefined) {
+    ws.send(JSON.stringify(new Message(MessageType.QUERY_IDENTITY, null)))
+  }
 }
 
 const createP2PServer = () => {
@@ -138,9 +154,14 @@ class Peer {
   }
 
   connect (endpoint: string) {
+    if (sockets.findIndex(ws => ws.url === endpoint) > -1) return
+
     const ws = new WebSocket(endpoint)
     ws.on('open', () => {
       onConnection(ws)
+
+
+
       // TODO:
     })
     ws.on('error', () => console.error(`connect to peer ${endpoint} failed.`))

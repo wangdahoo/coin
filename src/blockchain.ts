@@ -73,10 +73,8 @@ const getDifficulty = (): number => {
     const timeSpec = BLOCK_GENERATION_INTERVAL * DIFFICULTY_ADJUSTMENT_INTERVAL
 
     if (endTime - startTime < timeSpec / 2) {
-      console.log('+1')
       return difficulty + 1
     } else if (endTime - startTime > timeSpec * 2) {
-      console.log('-1')
       return difficulty - 1
     } else {
       return difficulty

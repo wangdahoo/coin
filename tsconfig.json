@@ -3,7 +3,9 @@
     "src/blockchain.ts",
     "src/controller.ts",
     "src/index.ts",
-    "src/peer.ts"
+    "src/peer.ts",
+    "src/transaction.ts",
+    "src/wallet.ts",
   ],
   "compilerOptions": {
     "module": "commonjs",

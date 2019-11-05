@@ -1,3 +1,5 @@
+const getCurrentTimestamp = () => Math.floor(Date.now() / 1000)
+
 type LookupTable = Record<string, string>
 
 const hexToBinary = (s: string): string => {
@@ -21,9 +23,14 @@ const hexToBinary = (s: string): string => {
   return ret
 }
 
-const getCurrentTimestamp = () => Math.floor(Date.now() / 1000)
+const toHexString = (byteArray: string): string => {
+  return Array.from(byteArray, (byte: any) => {
+      return ('0' + (byte & 0xFF).toString(16)).slice(-2)
+  }).join('')
+}
 
 export {
+  getCurrentTimestamp,
   hexToBinary,
-  getCurrentTimestamp
+  toHexString
 }
